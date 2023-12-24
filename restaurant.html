@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>restaurant</title>
+  <title>Restaurant list</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link href="index.css" rel="stylesheet">
 </head>
-<body>
+<body class="container mt-5">
 <div>
     <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light">
         <a class="navbar-brand text-dark" href="#">BistroPal</a>
@@ -30,12 +30,153 @@
         </div>
       </nav>
     </div>
-      
-
+    <h1 class="pt-4 mt-4">Restaurant List</h1>
+    <div id="loading" class="alert alert-info" role="alert" style="display: none;">Loding...</div>
+    <div id="error" class="alert alert-danger" role="alert" style="display: none;"></div>
+     <div class="mb-3">
+      <label for="cuisineFilter">Filter by Cuisine:</label>
+      <select id="cuisineFilter" class="form-control" onchange="applyFilter()">
+        <option value="">All</option>
+        <option value="italian">Italian</option>
+        <option value="Mexican">Mexican</option>
+            </select>
+     </div> 
+     <div class="mb-3">
+      <label for="sortOptions">Sort by:</label>
+      <select id="sortOptions" class="form-control" onchange="applySort()">
+        <option value="name">Name</option>
+        <option value="rating">Rating</option>
+            </select>
+     </div> 
+<ul id="restaurantlist" class="list-group">
+  <li class="list-group-item">
+    <h4>A2B</h4>
+    <p>Cuisine:Veg</p>
+    <p>Address:Gandhi Nagar, Gurugram</p>
+    <p>Rating: 4</p>
+    <button class="btn btn-primary" onclick="viewDetails('6587dc0f438b1ef294918e41')">View Details</button>
+    <button class="btn btn-danger ml-2" onclick="deleteRestaurant('6587dc0f438b1ef294918e41')">Delete</button>
+    <button class="btn btn-warning ml-2" onclick="updateRestaurant('6587dc0f438b1ef294918e41')">Update</button>
+  </li>
+  <li class="list-group-item">
+    <h4>D2A</h4>
+    <p>Cuisine:Non</p>
+    <p>Address:Jawahar Nagar, Gurgaon</p>
+    <p>Rating: 4</p>
+    <button class="btn btn-primary" onclick="viewDetails('6587df8f438b1ef294918e4f')">View Details</button>
+    <button class="btn btn-danger ml-2"  onclick="deleteRestaurant('6587df8f438b1ef294918e4f')">Delete</button>
+    <button class="btn btn-warning ml-2" onclick="updateRestaurant('6587df8f438b1ef294918e4f')">Update</button>
+  </li>
+</ul>
     
   <footer class="text-center mt-5">
    <p>© 2023 BistroPal. All rights reserved.</p>
   </footer>
+  <script>
+    
+    const loadingContainer = document.getElementById('loading');
+    const errorContainer = document.getElementById('error');
+    const restaurantList = document.getElementById('restaurantList');
+    const cuisineFilter = document.getElementById('cuisineFilter');
+    const sortOptions = document.getElementById('sortOptions');
+    let data = [];
+
+    const apiUrl = 'https://zomato-express.prerananawar.repl.co/restaurants';
+
+    const displayLoading = () => {
+      loadingContainer.style.display = 'block';
+      errorContainer.style.display = 'none';
+      restaurantList.innerHTML = '';
+    };
+
+    const displayError = (error) => {
+      loadingContainer.style.display = 'none';
+      errorContainer.style.display = 'block';
+      errorContainer.textContent = `Error: ${error.message}`;
+    };
+
+    const displayRestaurants = (restaurants) => {
+      loadingContainer.style.display = 'none';
+      errorContainer.style.display = 'none';
+
+      restaurantList.innerHTML = '';
+
+      restaurants.forEach(restaurant => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.innerHTML = `
+          <h4>${restaurant.name}</h4>
+          <p>Cuisine: ${restaurant.cuisine}</p>
+          <p>Address: ${restaurant.address}, ${restaurant.city}</p>
+          <p>Rating: ${restaurant.rating}</p>
+          <button class="btn btn-primary" onclick="viewDetails('${restaurant._id}')">View Details</button>
+          <button class="btn btn-danger ml-2" onclick="deleteRestaurant('${restaurant._id}')">Delete</button>
+          <button class="btn btn-warning ml-2" onclick="updateRestaurant('${restaurant._id}')">Update</button>
+        `;
+        restaurantList.appendChild(listItem);
+      });
+    };
+
+    const fetchData = async () => {
+      try {
+        displayLoading();
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.status}`);
+        }
+        data = await response.json();
+        displayRestaurants(data);
+      } catch (error) {
+        displayError(error);
+      }
+    };
+
+    const applyFilter = () => {
+      const selectedCuisine = cuisineFilter.value;
+      const filteredRestaurants = data.filter(restaurant => selectedCuisine === '' || restaurant.cuisine === selectedCuisine);
+      displayRestaurants(filteredRestaurants);
+    };
+
+    const applySort = () => {
+      const sortBy = sortOptions.value;
+      const sortedRestaurants = [...data].sort((a, b) => {
+        if (sortBy === 'name') {
+          return a.name.localeCompare(b.name);
+        } else {
+          return b[sortBy] - a[sortBy];
+        }
+      });
+      displayRestaurants(sortedRestaurants);
+    };
+
+    const viewDetails = (restaurantId) => {
+      window.location.href = `restaurant-details.html?id=${restaurantId}`;
+    };
+
+    const deleteRestaurant = async (restaurantId) => {
+      try {
+        const deleteUrl = `${apiUrl}/${restaurantId}`;
+        const response = await fetch(deleteUrl, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to delete restaurant: ${response.status}`);
+        }
+
+        fetchData();
+      } catch (error) {
+        displayError(error);
+      }
+    };
+
+    const updateRestaurant = (restaurantId) => {
+      window.location.href = `addrestaurant.html?updateId=${restaurantId}`;
+    };
+
+    fetchData();
+  
+  </script>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
