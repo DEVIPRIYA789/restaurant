@@ -1,0 +1,38 @@
+body {
+    background-color: #f8f9fa;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  }
+
+  .navbar {
+    color: #fff;
+    padding: 10px 0;
+    width: 100%;
+    height: 60px;
+    font-size: 1rem;
+    align-content: center;
+    font-weight: 400;
+    line-height: 1.5;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    padding-left: 1rem;
+    
+  }
+  .card-img-top{
+    flex-shrink: 0;
+    width: 100%;
+    vertical-align: middle;
+    border-style: none;
+    
+  }
+  .card-deck {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
